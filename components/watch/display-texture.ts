@@ -6,7 +6,14 @@ import * as THREE from "three";
  * close-up camera position where an image would show its pixels.
  */
 
-export type FaceMode = "time" | "activity" | "workout" | "dive" | "ecg";
+export type FaceMode =
+  | "time"
+  | "activity"
+  | "workout"
+  | "dive"
+  | "ecg"
+  | "night"
+  | "compass";
 
 const W = 512;
 const H = 620;
@@ -283,6 +290,134 @@ function drawEcg(ctx: CanvasRenderingContext2D) {
   ctx.fillText("● SINUS RHYTHM · NO SIGNS OF AFIB", W / 2, 549);
 }
 
+function drawNight(ctx: CanvasRenderingContext2D) {
+  const RED = "#ff263c";
+  const RED_DIM = "rgba(255,38,60,0.45)";
+
+  ctx.fillStyle = RED_DIM;
+  ctx.font = "600 24px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("TACTICAL RED-SHIFT · NIGHT VISION", W / 2, 78);
+
+  ctx.fillStyle = RED;
+  ctx.font = "300 156px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.fillText("02:44", W / 2, 236);
+
+  ctx.fillStyle = RED_DIM;
+  ctx.font = "500 24px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.fillText("342° NNW · 2,450M ASL", W / 2, 282);
+
+  // Night compass reticle ring
+  ctx.strokeStyle = "rgba(255, 38, 60, 0.25)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(W / 2, 388, 72, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Cardinal pointers
+  ctx.fillStyle = RED;
+  ctx.font = "700 20px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.fillText("N", W / 2, 332);
+  ctx.fillStyle = RED_DIM;
+  ctx.fillText("S", W / 2, 452);
+  ctx.fillText("W", W / 2 - 60, 394);
+  ctx.fillText("E", W / 2 + 60, 394);
+
+  // Coordinates & Expedition battery
+  const items: [string, string][] = [
+    ["12°58'23\"N", "LATITUDE"],
+    ["77°35'45\"E", "LONGITUDE"],
+    ["18 DAYS", "BATTERY"],
+  ];
+  items.forEach(([val, label], i) => {
+    const x = 90 + i * 166;
+    ctx.fillStyle = RED;
+    ctx.textAlign = "center";
+    ctx.font = "600 26px ui-sans-serif, system-ui, -apple-system, sans-serif";
+    ctx.fillText(val, x, 516);
+    ctx.fillStyle = RED_DIM;
+    ctx.font = "500 18px ui-sans-serif, system-ui, -apple-system, sans-serif";
+    ctx.fillText(label, x, 546);
+  });
+}
+
+function drawCompass(ctx: CanvasRenderingContext2D) {
+  ctx.fillStyle = "#f59e0b";
+  ctx.font = "600 24px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("DUAL-BAND GNSS (L1 + L5)", W / 2, 78);
+
+  // Big Azimuth display
+  ctx.fillStyle = FG;
+  ctx.font = "300 132px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.fillText("048°", W / 2 - 25, 220);
+  ctx.fillStyle = "#f59e0b";
+  ctx.font = "600 36px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.fillText("NE", W / 2 + 130, 220);
+
+  // Circular Compass Rose with ticks
+  const cx = W / 2;
+  const cy = 356;
+  const radius = 95;
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Draw 12 radial ticks
+  for (let i = 0; i < 12; i++) {
+    const angle = (i * Math.PI) / 6;
+    const isMajor = i % 3 === 0;
+    const innerR = isMajor ? radius - 16 : radius - 8;
+    const x1 = cx + Math.sin(angle) * innerR;
+    const y1 = cy - Math.cos(angle) * innerR;
+    const x2 = cx + Math.sin(angle) * radius;
+    const y2 = cy - Math.cos(angle) * radius;
+
+    ctx.strokeStyle = isMajor ? "#f59e0b" : "rgba(255,255,255,0.3)";
+    ctx.lineWidth = isMajor ? 3 : 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+
+  // Heading indicator arrow
+  ctx.fillStyle = "#f59e0b";
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 30);
+  ctx.lineTo(cx - 10, cy + 18);
+  ctx.lineTo(cx + 10, cy + 18);
+  ctx.closePath();
+  ctx.fill();
+
+  // Metrics: Elevation, Waypoint, Incline
+  const waypoints: [string, string][] = [
+    ["2,180M", "ELEVATION"],
+    ["BASE 4.2K", "WAYPOINT"],
+    ["±0.4M", "GNSS LOCK"],
+  ];
+  waypoints.forEach(([val, label], i) => {
+    const x = 90 + i * 166;
+    ctx.fillStyle = FG;
+    ctx.textAlign = "center";
+    ctx.font = "600 28px ui-sans-serif, system-ui, -apple-system, sans-serif";
+    ctx.fillText(val, x, 498);
+    ctx.fillStyle = DIM;
+    ctx.font = "500 20px ui-sans-serif, system-ui, -apple-system, sans-serif";
+    ctx.fillText(label, x, 532);
+  });
+
+  ctx.fillStyle = "rgba(245, 158, 11, 0.12)";
+  roundRect(ctx, 50, 560, W - 100, 42, 8);
+  ctx.fill();
+  ctx.fillStyle = "#f59e0b";
+  ctx.font = "600 18px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.fillText("● BACKTRACK ACTIVE · 28 WAYPOINTS LOGGED", W / 2, 587);
+}
+
 /**
  * Draws one face state. The panel geometry is a plain rectangle, so the rounded
  * corners are painted here — the case sits over the edge and hides the seam.
@@ -312,6 +447,8 @@ export function drawFace(canvas: HTMLCanvasElement, mode: FaceMode) {
   else if (mode === "workout") drawWorkout(ctx);
   else if (mode === "dive") drawDive(ctx);
   else if (mode === "ecg") drawEcg(ctx);
+  else if (mode === "night") drawNight(ctx);
+  else if (mode === "compass") drawCompass(ctx);
 
   ctx.restore();
 }

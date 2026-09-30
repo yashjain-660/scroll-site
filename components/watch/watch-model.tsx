@@ -88,7 +88,13 @@ function strapGeometry(points: THREE.Vector3[]) {
   return geo;
 }
 
-export function WatchModel({ progress }: { progress: MotionValue<number> }) {
+export function WatchModel({
+  progress,
+  overrideFaceMode,
+}: {
+  progress: MotionValue<number>;
+  overrideFaceMode?: FaceMode | null;
+}) {
   // --- geometry -----------------------------------------------------------
   const geo = useMemo(() => {
     const caseShape = roundedRectShape(CASE_W, CASE_H, CASE_R);
@@ -123,6 +129,9 @@ export function WatchModel({ progress }: { progress: MotionValue<number> }) {
       crown: new THREE.CylinderGeometry(0.085, 0.085, 0.075, 40),
       crownRidge: new THREE.TorusGeometry(0.082, 0.012, 10, 48),
       button: extruded(roundedRectShape(0.075, 0.26, 0.035), 0.06, 0.01, 16),
+      actionButton: extruded(roundedRectShape(0.065, 0.22, 0.028), 0.05, 0.008, 16),
+      actionGuard: extruded(roundedRectShape(0.08, 0.26, 0.035), 0.035, 0.008, 16),
+      speakerSlot: extruded(roundedRectShape(0.024, 0.07, 0.01), 0.03, 0.004, 12),
       lug: extruded(roundedRectShape(0.58, 0.1, 0.045), 0.16, 0.012, 16),
       strapTop: strapGeometry(strapTopPts),
       strapBottom: strapGeometry(strapBottomPts),
@@ -136,11 +145,6 @@ export function WatchModel({ progress }: { progress: MotionValue<number> }) {
 
   // --- watch face ---------------------------------------------------------
   // One texture per face state, built once and swapped by `map`.
-  //
-  // The first cut redrew a single canvas and flipped `texture.needsUpdate` from
-  // the frame loop, which is a post-render mutation React will not allow on a
-  // memo, on state, or through a ref read during render. Three textures cost a
-  // few MB of VRAM and the state changes exactly twice over the whole scroll.
   const faces = useMemo(
     () => ({
       time: createFaceTexture("time").texture,
@@ -148,6 +152,8 @@ export function WatchModel({ progress }: { progress: MotionValue<number> }) {
       workout: createFaceTexture("workout").texture,
       dive: createFaceTexture("dive").texture,
       ecg: createFaceTexture("ecg").texture,
+      night: createFaceTexture("night").texture,
+      compass: createFaceTexture("compass").texture,
     }),
     [],
   );
@@ -166,10 +172,12 @@ export function WatchModel({ progress }: { progress: MotionValue<number> }) {
   const backRef = useRef<THREE.Group>(null);
   const sensorRef = useRef<THREE.Group>(null);
   const crownRef = useRef<THREE.Group>(null);
+  const actionRef = useRef<THREE.Group>(null);
   const strapTopRef = useRef<THREE.Group>(null);
   const strapBottomRef = useRef<THREE.Group>(null);
 
   const caseMat = useRef<THREE.MeshStandardMaterial>(null);
+  const actionMat = useRef<THREE.MeshStandardMaterial>(null);
   const backMat = useRef<THREE.MeshStandardMaterial>(null);
   const strapMat = useRef<THREE.MeshStandardMaterial>(null);
   const strapMat2 = useRef<THREE.MeshStandardMaterial>(null);
@@ -212,22 +220,28 @@ export function WatchModel({ progress }: { progress: MotionValue<number> }) {
     set(backRef, -0.42);
     set(sensorRef, -0.78);
     set(crownRef, 0.1, 0, 0.42);
+    set(actionRef, 0.1, 0, -0.42);
     set(strapTopRef, -0.1, 0.5);
     set(strapBottomRef, -0.1, -0.5);
 
     // ---- watch face state ----------------------------------------------
     const wanted: FaceMode =
-      p < CH.water[0]
+      overrideFaceMode ??
+      (p < CH.water[0]
         ? "time"
         : p < CH.water[1]
           ? "dive"
-          : p < CH.display[0] + 0.04
+          : p < CH.display[0] + 0.035
             ? "activity"
-            : p < CH.display[0] + 0.08
-              ? "workout"
-              : p < CH.display[1]
-                ? "ecg"
-                : "time";
+            : p < CH.display[0] + 0.070
+              ? "ecg"
+              : p < CH.display[0] + 0.105
+                ? "compass"
+                : p < CH.display[1]
+                  ? "night"
+                  : p < CH.finishes[1]
+                    ? "night"
+                    : "time");
     if (wanted !== lastFace.current) {
       lastFace.current = wanted;
       setFaceMode(wanted);
@@ -244,6 +258,7 @@ export function WatchModel({ progress }: { progress: MotionValue<number> }) {
     scratch.strapC.set(FINISHES[i0].strap).lerp(new THREE.Color(FINISHES[i1].strap), ft);
 
     caseMat.current?.color.lerp(scratch.caseC, 1 - Math.exp(-8 * d));
+    actionMat.current?.color.lerp(scratch.caseC, 1 - Math.exp(-8 * d));
     backMat.current?.color.lerp(scratch.caseC, 1 - Math.exp(-8 * d));
     strapMat.current?.color.lerp(scratch.strapC, 1 - Math.exp(-8 * d));
     strapMat2.current?.color.lerp(scratch.strapC, 1 - Math.exp(-8 * d));
@@ -302,6 +317,48 @@ export function WatchModel({ progress }: { progress: MotionValue<number> }) {
         </mesh>
       </group>
 
+      {/* ---- left flank: action button & acoustic speaker / siren array ---- */}
+      <group ref={actionRef}>
+        {/* International Orange Anodized Action Button */}
+        <mesh
+          geometry={geo.actionButton}
+          position={[-CASE_W / 2 - 0.016, 0.08, 0]}
+        >
+          <meshStandardMaterial
+            color="#ff5500"
+            metalness={0.7}
+            roughness={0.25}
+            envMapIntensity={1.4}
+          />
+        </mesh>
+        {/* Protective Titanium Button Guard */}
+        <mesh
+          geometry={geo.actionGuard}
+          position={[-CASE_W / 2 - 0.006, 0.08, 0]}
+        >
+          <meshStandardMaterial
+            ref={actionMat}
+            color={FINISHES[0].case}
+            metalness={1}
+            roughness={0.28}
+          />
+        </mesh>
+        {/* Dual Acoustic Speaker & 86dB Siren Slots */}
+        {[-0.12, -0.165, -0.21].map((y, i) => (
+          <mesh
+            key={i}
+            geometry={geo.speakerSlot}
+            position={[-CASE_W / 2 - 0.002, y, 0]}
+          >
+            <meshStandardMaterial
+              color="#0c0d10"
+              metalness={0.9}
+              roughness={0.5}
+            />
+          </mesh>
+        ))}
+      </group>
+
       {/* ---- display panel ---- */}
       <group ref={panelRef}>
         <mesh geometry={geo.panel} position={[0, 0, FRONT + 0.004]}>
@@ -320,18 +377,15 @@ export function WatchModel({ progress }: { progress: MotionValue<number> }) {
       <group ref={crystalRef}>
         <mesh geometry={geo.crystal} position={[0, 0, FRONT + 0.03]}>
           <meshPhysicalMaterial
-            transmission={0.96}
-            thickness={0.08}
-            ior={1.62}
-            roughness={0.035}
-            metalness={0}
+            roughness={0.03}
+            metalness={0.02}
             clearcoat={1}
-            clearcoatRoughness={0.03}
+            clearcoatRoughness={0.02}
             transparent
-            opacity={1}
-            /* low, or the dome mirrors the softbox and hides the display */
-            envMapIntensity={0.45}
-            specularIntensity={0.7}
+            opacity={0.32}
+            envMapIntensity={1.2}
+            specularIntensity={1.0}
+            color="#ffffff"
           />
         </mesh>
       </group>

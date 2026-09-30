@@ -201,17 +201,14 @@ export function WaterSplashes({ progress }: { progress: MotionValue<number> }) {
         <sphereGeometry args={[1, 16, 14]} />
         <meshPhysicalMaterial
           color="#d5f4ff"
-          transmission={0.96}
-          thickness={0.22}
-          ior={1.333}
-          roughness={0.03}
-          metalness={0.05}
+          roughness={0.04}
+          metalness={0.08}
           clearcoat={1}
           clearcoatRoughness={0.02}
-          specularIntensity={1.0}
+          specularIntensity={1.2}
           transparent
-          opacity={0.88}
-          envMapIntensity={1.8}
+          opacity={0.78}
+          envMapIntensity={2.4}
         />
       </instancedMesh>
 

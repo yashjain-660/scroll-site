@@ -9,6 +9,7 @@ import { useReducedMotion, type MotionValue } from "motion/react";
 import { damp, trackEased } from "@/lib/anim";
 import { WatchModel } from "./watch-model";
 import { WaterSplashes } from "./water-splashes";
+import type { FaceMode } from "./display-texture";
 
 /**
  * One persistent WebGL canvas sits behind the whole document. Chapters do not
@@ -20,9 +21,11 @@ import { WaterSplashes } from "./water-splashes";
 function Rig({
   progress,
   reduce,
+  overrideFaceMode,
 }: {
   progress: MotionValue<number>;
   reduce: boolean;
+  overrideFaceMode?: FaceMode | null;
 }) {
   const group = useRef<THREE.Group>(null);
   const pointer = useRef({ x: 0, y: 0 });
@@ -56,11 +59,19 @@ function Rig({
     // field and the watch blows out past both edges. Back the camera off by the
     // inverse aspect on portrait screens so the framing holds on a phone.
     const aspect = size.height > 0 ? size.width / size.height : 1;
-    const fit = aspect < 1 ? Math.min(1 / aspect, 1.95) : 1;
+    const isPortrait = aspect < 1;
+    const fit = isPortrait ? Math.min(1 / aspect, 1.95) : 1;
 
-    camera.position.x = damp(camera.position.x, camX * fit, 4.5, d);
-    camera.position.y = damp(camera.position.y, camY * fit, 4.5, d);
-    camera.position.z = damp(camera.position.z, camZ * fit, 4.5, d);
+    // On portrait viewports (mobile), damp horizontal displacement to keep the watch
+    // inside the viewport, lift camY slightly to seat the watch in the top 55%,
+    // leaving the bottom 45% clear for text copy above the dark gradient wash.
+    const targetCamX = isPortrait ? camX * 0.32 : camX;
+    const targetCamY = isPortrait ? camY + 0.28 : camY;
+    const targetCamZ = camZ * fit;
+
+    camera.position.x = damp(camera.position.x, targetCamX, 4.5, d);
+    camera.position.y = damp(camera.position.y, targetCamY, 4.5, d);
+    camera.position.z = damp(camera.position.z, targetCamZ, 4.5, d);
     camera.lookAt(target);
 
     const g = group.current;
@@ -114,7 +125,7 @@ function Rig({
 
   return (
     <group ref={group}>
-      <WatchModel progress={progress} />
+      <WatchModel progress={progress} overrideFaceMode={overrideFaceMode} />
       <WaterSplashes progress={progress} />
     </group>
   );
@@ -127,7 +138,7 @@ function Rig({
  */
 function Studio() {
   return (
-    <Environment resolution={256}>
+    <Environment resolution={256} background={false}>
       <Lightformer
         form="rect"
         intensity={2.2}
@@ -172,7 +183,13 @@ function Studio() {
   );
 }
 
-export default function WatchScene({ progress }: { progress: MotionValue<number> }) {
+export default function WatchScene({
+  progress,
+  overrideFaceMode,
+}: {
+  progress: MotionValue<number>;
+  overrideFaceMode?: FaceMode | null;
+}) {
   const reduce = useReducedMotion() === true;
 
   return (
@@ -185,7 +202,12 @@ export default function WatchScene({ progress }: { progress: MotionValue<number>
         gl.toneMappingExposure = 1.05;
       }}
     >
-      <Rig progress={progress} reduce={reduce} />
+      <color attach="background" args={["#08080a"]} />
+      <Rig
+        progress={progress}
+        reduce={reduce}
+        overrideFaceMode={overrideFaceMode}
+      />
       <Studio />
       <ContactShadows
         position={[0, -1.62, 0]}

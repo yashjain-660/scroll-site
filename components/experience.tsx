@@ -86,6 +86,7 @@ function Fade({
   /** how far the block lifts as it leaves */
   exitY?: number;
 }) {
+  const initialVisible = at[0] === 0 && at[1] === 0;
   const ref = useProgressStyle<HTMLDivElement>(
     progress,
     useCallback(
@@ -102,7 +103,14 @@ function Fade({
   );
 
   return (
-    <div ref={ref} className={className} style={{ opacity: 0 }}>
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: initialVisible ? 1 : 0,
+        visibility: initialVisible ? "visible" : "hidden",
+      }}
+    >
       {children}
     </div>
   );
@@ -150,17 +158,31 @@ const ORBIT_NOTES = [
   },
 ];
 
+import type { FaceMode } from "@/components/watch/display-texture";
+
+const FACE_OPTIONS: { id: FaceMode; label: string; icon: string }[] = [
+  { id: "time", label: "Classic", icon: "⌚" },
+  { id: "activity", label: "Activity", icon: "⭕" },
+  { id: "workout", label: "Intervals", icon: "⚡" },
+  { id: "dive", label: "100M Dive", icon: "🤿" },
+  { id: "ecg", label: "ECG Trace", icon: "🫀" },
+  { id: "compass", label: "Dual GNSS", icon: "🧭" },
+  { id: "night", label: "Red-Shift", icon: "🔴" },
+];
+
 const PARTS = [
   ["Sapphire crystal", "Grown, not coated. 9 on the Mohs scale."],
   ["Bezel ring", "PVD-black steel, 0.4mm proud of the glass."],
-  ["LTPO display", "Drops to 1Hz when you are not looking."],
-  ["Titanium case", "Grade 5. 34 grams without the band."],
-  ["Caseback", "Sealed to 100m, tested to 150m."],
-  ["Sensor array", "Four-channel optical, green and infrared."],
+  ["Action Button", "International orange anodized titanium. Custom tactical bind."],
+  ["LTPO display", "Drops to 1Hz when you are not looking. 3,000 nits peak."],
+  ["Dual Acoustic Siren", "86-decibel emergency distress beacon. Audible to 600m."],
+  ["Titanium case", "Grade 5 aerospace alloy. 34 grams without the band."],
+  ["Sensor array", "Four-channel optical PPG, ECG electrodes, skin temperature."],
+  ["Caseback", "Hermetically sealed to 100m, tested to 150m."],
 ];
 
 /**
- * The display chapter runs three watch-face states back to back. Each beat is
+ * The display chapter runs four watch-face states back to back. Each beat is
  * [fade-in start, fully in, fade-out start, fully out] and every array must be
  * ascending — motion throws "Offsets must be monotonically non-decreasing" on a
  * range that doubles back, which takes the whole page down with it.
@@ -172,16 +194,11 @@ const WATER_METRICS = [
   { value: "Hydrophobic", label: "Mohs-9 Sapphire", note: "Lotus-effect oleophobic water barrier" },
 ];
 
-/**
- * The display chapter runs three watch-face states back to back. Each beat is
- * [fade-in start, fully in, fade-out start, fully out] and every array must be
- * ascending — motion throws "Offsets must be monotonically non-decreasing" on a
- * range that doubles back, which takes the whole page down with it.
- */
 const DISPLAY_BEATS: [number, number, number, number][] = [
-  [0.49, 0.508, 0.525, 0.536],
-  [0.538, 0.554, 0.572, 0.582],
-  [0.584, 0.60, 0.618, 0.628],
+  [0.49, 0.505, 0.518, 0.524],
+  [0.526, 0.540, 0.553, 0.559],
+  [0.561, 0.575, 0.588, 0.594],
+  [0.596, 0.610, 0.623, 0.629],
 ];
 
 /**
@@ -197,24 +214,34 @@ const HERO_BEATS: Record<string, [number, number, number, number]> = {
 
 const DISPLAY_COPY = [
   {
+    kicker: "01 — LTPO RETINA",
     dim: "Always on.",
     bright: "Never loud.",
-    body: "An LTPO OLED panel that drops to a single frame per second when your wrist rests, and peaks at 3000 nits when sunlight strikes the sapphire crystal.",
+    body: "An LTPO OLED panel that drops to a single frame per second when your wrist rests, and peaks at 3000 nits when direct sunlight strikes the sapphire crystal.",
   },
   {
+    kicker: "02 — CLINICAL CARDIAC",
     dim: "Clinical precision.",
     bright: "On your wrist.",
-    body: "Four-channel optical PPG and titanium micro-current electrodes record medical-grade ECG waveforms, SpO₂ saturation, and continuous skin temperature.",
+    body: "Four-channel optical PPG and titanium micro-current electrodes record medical-grade ECG waveforms, continuous SpO₂ oxygen saturation, and sub-degree skin temperature.",
   },
   {
-    dim: "Reads at a glance,",
-    bright: "mid-stride.",
-    body: "Dual-frequency L1 + L5 GNSS locks sub-meter GPS coordinates instantly. Heart rate zones, cadence, and pace stay ultra-legible while in motion.",
+    kicker: "03 — L1 + L5 GNSS",
+    dim: "Dual-frequency.",
+    bright: "Sub-meter lock.",
+    body: "Precision dual-band L1+L5 GNSS antennas integrated into the titanium bezel cut through dense urban canyons and deep forest canopy. Real-time 3D elevation and backtrack waypoints.",
+  },
+  {
+    kicker: "04 — TACTICAL RED-SHIFT",
+    dim: "Night vision.",
+    bright: "Zero glare.",
+    body: "Monochromatic red-shift mode suppresses blue and green wavelengths to preserve your rhodopsin night adaptation in pitch black, stretching expedition battery to 18 days.",
   },
 ];
 
 const SPECS: [string, string][] = [
   ["Case", "44mm · Grade 5 titanium · 34g · IP6X dustproof"],
+  ["Action Button", "Tactical anodized orange · custom action shortcut & siren hold"],
   ["Display", "LTPO OLED · 3000 nits · 1–120Hz · Sapphire crystal"],
   ["Water & Dive", "100m · 10 ATM · EN 13319 dive certified · acoustic purge"],
   ["Sensors", "4-channel optical PPG · ECG trace · SpO₂ · depth · water temp"],
@@ -235,6 +262,7 @@ export default function Experience() {
   // progress value the material lerp reads — one source of truth.
   const [finish, setFinish] = useState(0);
   const [chapter, setChapter] = useState(0);
+  const [overrideFaceMode, setOverrideFaceMode] = useState<FaceMode | null>(null);
 
   useMotionValueEvent(scrollYProgress, "change", (p) => {
     const t =
@@ -283,14 +311,62 @@ export default function Experience() {
 
 
   return (
-    <div ref={stageRef} className="relative" style={{ height: `${STAGE_VH}vh` }}>
+    <div ref={stageRef} className="relative bg-[#08080a]" style={{ height: `${STAGE_VH}vh` }}>
       {/* ---------- WebGL layer ---------- */}
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
+      <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#08080a]">
         <div ref={washRef} className="absolute inset-0" />
         <div ref={canvasRef} className="h-full w-full">
-          <WatchScene progress={scrollYProgress} />
+          <WatchScene
+            progress={scrollYProgress}
+            overrideFaceMode={overrideFaceMode}
+          />
         </div>
         <Hud progress={scrollYProgress} chapter={chapter} />
+
+        {/* Interactive Tactical Face Dock (visible during Form through Specs chapters) */}
+        <div
+          className={`pointer-events-auto absolute left-1/2 top-16 md:top-auto md:bottom-16 z-30 -translate-x-1/2 transition-all duration-300 ${
+            chapter >= 1 && chapter <= 6
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 pointer-events-none -translate-y-3 md:translate-y-3"
+          }`}
+        >
+          <div className="flex max-w-[94vw] items-center gap-1 overflow-x-auto rounded-full border border-white/15 bg-black/80 px-2 py-1 shadow-[0_8px_32px_rgba(0,0,0,0.7)] backdrop-blur-md">
+            <span className="hidden px-2 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-white/40 md:inline-block">
+              Face:
+            </span>
+            {FACE_OPTIONS.map((opt) => {
+              const active = overrideFaceMode === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() =>
+                    setOverrideFaceMode((prev) => (prev === opt.id ? null : opt.id))
+                  }
+                  className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.68rem] font-medium transition-all ${
+                    active
+                      ? "bg-white/20 text-white ring-1 ring-white/50 shadow-sm"
+                      : "text-white/60 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  <span className="text-[0.75rem]">{opt.icon}</span>
+                  <span className="whitespace-nowrap">{opt.label}</span>
+                </button>
+              );
+            })}
+            {overrideFaceMode && (
+              <button
+                type="button"
+                onClick={() => setOverrideFaceMode(null)}
+                className="ml-1 rounded-full bg-[#ff5500]/20 px-2 py-0.5 text-[0.62rem] font-semibold uppercase tracking-wider text-[#ff7722] hover:bg-[#ff5500]/30 transition-colors"
+                title="Reset to Scroll-Sync"
+              >
+                Auto ✕
+              </button>
+            )}
+          </div>
+        </div>
 
         {/* phones stack copy under the product; this keeps it readable */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-[52vh] bg-gradient-to-t from-[#08080a] via-[#08080a]/88 to-transparent md:hidden" />
@@ -408,7 +484,7 @@ export default function Experience() {
               CH.water[1] - 0.035,
               CH.water[1] - 0.005,
             ]}
-            className="absolute inset-x-0 bottom-[6vh] w-full max-w-xl md:inset-x-auto md:left-0 md:bottom-auto md:top-[16vh]"
+            className="absolute inset-x-0 bottom-[4vh] w-full max-w-xl md:inset-x-auto md:left-0 md:bottom-auto md:top-[16vh]"
           >
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-[#00e5ff] shadow-[0_0_12px_#00e5ff]" />
@@ -416,26 +492,26 @@ export default function Experience() {
                 Hydrodynamics & 100M Water Resistance
               </p>
             </div>
-            <Headline dim="100 meters down." bright="Ocean-proof." className="mt-4" />
-            <p className="mt-5 text-sm leading-relaxed text-white/65">
+            <Headline dim="100 meters down." bright="Ocean-proof." className="mt-3 md:mt-4 text-[7.5vw] md:text-[4.2vw]" />
+            <p className="mt-3 md:mt-5 text-xs md:text-sm leading-relaxed text-white/65">
               Hermetically sealed with dual fluoroelastomer gaskets and certified to
               EN 13319 scuba standards. When you surface, resonant acoustic pulses
               eject trapped droplets from the speaker chamber automatically.
             </p>
 
-            <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="mt-4 md:mt-7 grid grid-cols-2 gap-2 sm:gap-4">
               {WATER_METRICS.map((m) => (
                 <div
                   key={m.label}
-                  className="rounded-xl border border-white/10 bg-white/[0.03] p-3.5 backdrop-blur-sm"
+                  className="rounded-xl border border-white/10 bg-white/[0.04] p-2.5 sm:p-3.5 backdrop-blur-sm"
                 >
-                  <span className="font-mono text-xs font-semibold tracking-wider text-[#00e5ff]">
+                  <span className="font-mono text-[0.72rem] sm:text-xs font-semibold tracking-wider text-[#00e5ff]">
                     {m.value}
                   </span>
-                  <p className="mt-1 text-[0.65rem] font-medium uppercase tracking-wider text-white/85">
+                  <p className="mt-0.5 text-[0.6rem] sm:text-[0.65rem] font-medium uppercase tracking-wider text-white/85">
                     {m.label}
                   </p>
-                  <p className="mt-0.5 text-[0.7rem] leading-tight text-white/45">
+                  <p className="mt-0.5 text-[0.65rem] sm:text-[0.7rem] leading-tight text-white/45 hidden sm:block">
                     {m.note}
                   </p>
                 </div>
@@ -453,6 +529,7 @@ export default function Experience() {
                 at={DISPLAY_BEATS[i]}
                 className="absolute inset-x-0 bottom-[11vh]"
               >
+                <p className={`${LABEL} mb-3`}>{beat.kicker}</p>
                 <Headline dim={beat.dim} bright={beat.bright} />
                 <p className="mt-4 max-w-md text-sm leading-relaxed text-white/55">
                   {beat.body}
