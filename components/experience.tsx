@@ -435,7 +435,7 @@ export default function Experience() {
                   key={note.kicker}
                   progress={scrollYProgress}
                   at={[a, a + span * 0.22, a + span * 0.72, a + span * 0.96]}
-                  className={`absolute bottom-[9vh] w-full max-w-sm md:bottom-auto md:top-[28vh] ${
+                  className={`absolute bottom-[9vh] w-full max-w-sm md:bottom-auto md:top-[28vh] md:rounded-2xl md:border md:border-white/10 md:bg-black/40 md:p-6 md:backdrop-blur-md md:shadow-2xl ${
                     note.side === "right" ? "right-0 md:text-right" : "left-0"
                   }`}
                 >
@@ -459,10 +459,10 @@ export default function Experience() {
                 CH.explode[1] - 0.05,
                 CH.explode[1] - 0.01,
               ]}
-              className="absolute inset-x-0 bottom-[5vh] w-full max-w-sm md:inset-x-auto md:left-0 md:bottom-auto md:top-[16vh] md:max-w-xs"
+              className="absolute inset-x-0 bottom-[5vh] w-full max-w-sm md:inset-x-auto md:left-0 md:bottom-auto md:top-[16vh] md:max-w-sm md:rounded-2xl md:border md:border-white/10 md:bg-black/40 md:p-6 md:backdrop-blur-md md:shadow-2xl"
             >
               <p className={LABEL}>Construction</p>
-              <Headline dim="Six parts." bright="One seam." className="mt-3 md:mt-4 text-[7vw] md:text-[4vw]" />
+              <Headline dim="Six parts." bright="One seam." className="mt-3 md:mt-4 text-[7vw] md:text-[3.2vw]" />
               
               {/* Mobile 2-column compact grid to keep watch visible */}
               <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 md:hidden">
@@ -496,7 +496,7 @@ export default function Experience() {
               CH.water[1] - 0.035,
               CH.water[1] - 0.005,
             ]}
-            className="absolute inset-x-0 bottom-[4vh] w-full max-w-sm md:inset-x-auto md:left-0 md:bottom-auto md:top-[16vh] md:max-w-md lg:max-w-lg"
+            className="absolute inset-x-0 bottom-[4vh] w-full max-w-sm md:inset-x-auto md:left-0 md:bottom-auto md:top-[14vh] md:max-w-md lg:max-w-lg md:rounded-2xl md:border md:border-white/10 md:bg-black/40 md:p-6 md:backdrop-blur-md md:shadow-2xl"
           >
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-[#00e5ff] shadow-[0_0_12px_#00e5ff]" />
@@ -504,18 +504,18 @@ export default function Experience() {
                 Hydrodynamics & 100M Water Resistance
               </p>
             </div>
-            <Headline dim="100 meters down." bright="Ocean-proof." className="mt-2.5 md:mt-4 text-[6.8vw] md:text-[4.2vw]" />
-            <p className="mt-2 md:mt-5 text-xs md:text-sm leading-relaxed text-white/65 line-clamp-2 md:line-clamp-none">
+            <Headline dim="100 meters down." bright="Ocean-proof." className="mt-2.5 md:mt-4 text-[6.8vw] md:text-[3.6vw]" />
+            <p className="mt-2 md:mt-4 text-xs md:text-sm leading-relaxed text-white/65 line-clamp-2 md:line-clamp-none">
               Hermetically sealed with dual fluoroelastomer gaskets and certified to
               EN 13319 scuba standards. When you surface, resonant acoustic pulses
               eject trapped droplets from the speaker chamber automatically.
             </p>
 
-            <div className="mt-3 md:mt-7 grid grid-cols-2 gap-2 sm:gap-4">
+            <div className="mt-3 md:mt-5 grid grid-cols-2 gap-2 sm:gap-3">
               {WATER_METRICS.map((m) => (
                 <div
                   key={m.label}
-                  className="rounded-xl border border-white/10 bg-white/[0.04] p-2 sm:p-3.5 backdrop-blur-sm"
+                  className="rounded-xl border border-white/10 bg-white/[0.04] p-2 sm:p-3 backdrop-blur-sm"
                 >
                   <span className="font-mono text-[0.7rem] sm:text-xs font-semibold tracking-wider text-[#00e5ff]">
                     {m.value}
@@ -539,10 +539,10 @@ export default function Experience() {
                 key={beat.bright}
                 progress={scrollYProgress}
                 at={DISPLAY_BEATS[i]}
-                className="absolute inset-x-0 bottom-[6vh] w-full max-w-sm md:inset-x-auto md:right-0 md:bottom-auto md:top-[26vh] md:max-w-md md:text-left"
+                className="absolute inset-x-0 bottom-[6vh] w-full max-w-sm md:inset-x-auto md:right-0 md:bottom-auto md:top-[26vh] md:max-w-md md:rounded-2xl md:border md:border-white/10 md:bg-black/40 md:p-6 md:backdrop-blur-md md:shadow-2xl md:text-left"
               >
                 <p className={`${LABEL} mb-2 md:mb-3`}>{beat.kicker}</p>
-                <Headline dim={beat.dim} bright={beat.bright} className="text-[7.5vw] md:text-[4.2vw]" />
+                <Headline dim={beat.dim} bright={beat.bright} className="text-[7.5vw] md:text-[3.6vw]" />
                 <p className="mt-3 md:mt-4 max-w-md text-xs md:text-sm leading-relaxed text-white/55">
                   {beat.body}
                 </p>
@@ -560,11 +560,11 @@ export default function Experience() {
                 CH.finishes[1] - 0.025,
                 CH.finishes[1] - 0.002,
               ]}
-              className="absolute inset-x-0 bottom-[7vh] w-full max-w-sm md:inset-x-auto md:left-0 md:bottom-[12vh] md:max-w-xl"
+              className="absolute inset-x-0 bottom-[7vh] w-full max-w-sm md:inset-x-auto md:left-0 md:bottom-[12vh] md:max-w-xl md:rounded-2xl md:border md:border-white/10 md:bg-black/40 md:p-6 md:backdrop-blur-md md:shadow-2xl"
             >
               <p className={LABEL}>Finishes</p>
               <div className="mt-3 md:mt-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                <h2 className={`${DISPLAY} text-[8vw] text-white md:text-[4.6vw]`}>
+                <h2 className={`${DISPLAY} text-[8vw] text-white md:text-[4.2vw]`}>
                   {FINISHES[finish].name}
                 </h2>
                 <div className="flex items-center gap-3">
@@ -590,14 +590,14 @@ export default function Experience() {
             <Fade
               progress={scrollYProgress}
               at={[CH.specs[0], CH.specs[0] + 0.02, CH.specs[1] - 0.02, CH.specs[1]]}
-              className="absolute inset-x-0 bottom-[4vh] w-full max-w-sm md:inset-x-auto md:bottom-auto md:right-12 md:top-[16vh] md:max-w-md"
+              className="absolute inset-x-0 bottom-[4vh] w-full max-w-sm md:inset-x-auto md:bottom-auto md:right-12 md:top-[14vh] md:max-w-md md:rounded-2xl md:border md:border-white/10 md:bg-black/40 md:p-6 md:backdrop-blur-md md:shadow-2xl"
             >
               <p className={LABEL}>Specification</p>
-              <dl className="mt-3 md:mt-5 divide-y divide-white/10 border-y border-white/10">
+              <dl className="mt-3 md:mt-4 divide-y divide-white/10 border-y border-white/10">
                 {SPECS.map(([k, v, secondary]) => (
                   <div
                     key={k}
-                    className={`gap-4 py-1.5 md:gap-6 md:py-3 ${secondary ? "hidden sm:flex" : "flex"}`}
+                    className={`gap-4 py-1.5 md:gap-6 md:py-2.5 ${secondary ? "hidden sm:flex" : "flex"}`}
                   >
                     <dt className="w-24 md:w-28 shrink-0 text-[0.62rem] md:text-[0.65rem] uppercase tracking-[0.18em] text-white/40">
                       {k}

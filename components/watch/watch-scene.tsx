@@ -167,8 +167,13 @@ export default function WatchScene({
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 1.05;
+        gl.domElement.style.backgroundColor = "transparent";
         gl.domElement.addEventListener("webglcontextlost", (event) => {
           event.preventDefault();
+          gl.domElement.style.opacity = "0";
+        });
+        gl.domElement.addEventListener("webglcontextrestored", () => {
+          gl.domElement.style.opacity = "1";
         });
       }}
     >

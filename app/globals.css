@@ -153,4 +153,5 @@ body {
 canvas {
   display: block;
   touch-action: pan-y;
+  background-color: transparent !important;
 }
