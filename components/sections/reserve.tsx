@@ -10,12 +10,12 @@ const SIZES = [
 
 const BANDS = [
   { id: "woven", label: "Woven loop", note: "Recycled yarn, no buckle" },
-  { id: "fluoro", label: "Fluoroelastomer", note: "Pool and ocean safe" },
-  { id: "link", label: "Titanium link", note: "Tool-free micro-adjust" },
+  { id: "ocean", label: "Ocean fluoroelastomer", note: "100m deep dive certified, dual titanium buckle" },
+  { id: "link", label: "Titanium link", note: "Grade 5 aero titanium, tool-free micro-adjust" },
 ];
 
 const PRICE: Record<string, number> = { "42": 64900, "46": 71900 };
-const BAND_DELTA: Record<string, number> = { woven: 0, fluoro: 0, link: 18000 };
+const BAND_DELTA: Record<string, number> = { woven: 0, ocean: 0, link: 18000 };
 
 const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 

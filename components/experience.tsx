@@ -165,10 +165,23 @@ const PARTS = [
  * ascending — motion throws "Offsets must be monotonically non-decreasing" on a
  * range that doubles back, which takes the whole page down with it.
  */
+const WATER_METRICS = [
+  { value: "100M", label: "Depth Rating", note: "10 ATM hydrostatic pressure" },
+  { value: "EN 13319", label: "Scuba Standard", note: "Tested for deep recreational diving" },
+  { value: "Acoustic", label: "Water Ejection", note: "Resonant pulses clear speaker chamber" },
+  { value: "Hydrophobic", label: "Mohs-9 Sapphire", note: "Lotus-effect oleophobic water barrier" },
+];
+
+/**
+ * The display chapter runs three watch-face states back to back. Each beat is
+ * [fade-in start, fully in, fade-out start, fully out] and every array must be
+ * ascending — motion throws "Offsets must be monotonically non-decreasing" on a
+ * range that doubles back, which takes the whole page down with it.
+ */
 const DISPLAY_BEATS: [number, number, number, number][] = [
-  [0.44, 0.458, 0.47, 0.484],
-  [0.486, 0.5, 0.515, 0.528],
-  [0.53, 0.544, 0.562, 0.578],
+  [0.49, 0.508, 0.525, 0.536],
+  [0.538, 0.554, 0.572, 0.582],
+  [0.584, 0.60, 0.618, 0.628],
 ];
 
 /**
@@ -176,39 +189,39 @@ const DISPLAY_BEATS: [number, number, number, number][] = [
  * zero and only the exit does any work.
  */
 const HERO_BEATS: Record<string, [number, number, number, number]> = {
-  kicker: [0, 0, 0.018, 0.05],
-  title: [0, 0, 0.03, 0.085],
-  sub: [0, 0, 0.02, 0.055],
-  card: [0, 0, 0.015, 0.048],
+  kicker: [0, 0, 0.015, 0.045],
+  title: [0, 0, 0.025, 0.068],
+  sub: [0, 0, 0.018, 0.05],
+  card: [0, 0, 0.012, 0.042],
 };
 
 const DISPLAY_COPY = [
   {
     dim: "Always on.",
     bright: "Never loud.",
-    body: "An LTPO panel that drops to a single frame a second when your wrist is down, and hits 3000 nits when the sun is out.",
+    body: "An LTPO OLED panel that drops to a single frame per second when your wrist rests, and peaks at 3000 nits when sunlight strikes the sapphire crystal.",
   },
   {
-    dim: "Three rings.",
-    bright: "No lectures.",
-    body: "Move, exercise, stand. The only three numbers the watch will ever interrupt you about.",
+    dim: "Clinical precision.",
+    bright: "On your wrist.",
+    body: "Four-channel optical PPG and titanium micro-current electrodes record medical-grade ECG waveforms, SpO₂ saturation, and continuous skin temperature.",
   },
   {
     dim: "Reads at a glance,",
     bright: "mid-stride.",
-    body: "Heart rate, pace and distance in one frame — sized to be legible while your arm is still moving.",
+    body: "Dual-frequency L1 + L5 GNSS locks sub-meter GPS coordinates instantly. Heart rate zones, cadence, and pace stay ultra-legible while in motion.",
   },
 ];
 
 const SPECS: [string, string][] = [
-  ["Case", "44mm · Grade 5 titanium · 34g"],
-  ["Display", "LTPO OLED · 3000 nits · 1–120Hz"],
-  ["Crystal", "Sapphire · anti-reflective, both faces"],
-  ["Battery", "72 hours typical · 18 days low power"],
-  ["Sensors", "Optical HR · SpO₂ · ECG · skin temp · depth"],
-  ["Water", "100m · EN 13319 dive rated"],
-  ["Connectivity", "UWB · Wi-Fi 6E · Bluetooth 5.4 · LTE"],
-  ["Materials", "95% recycled titanium, 100% recycled cobalt"],
+  ["Case", "44mm · Grade 5 titanium · 34g · IP6X dustproof"],
+  ["Display", "LTPO OLED · 3000 nits · 1–120Hz · Sapphire crystal"],
+  ["Water & Dive", "100m · 10 ATM · EN 13319 dive certified · acoustic purge"],
+  ["Sensors", "4-channel optical PPG · ECG trace · SpO₂ · depth · water temp"],
+  ["GPS", "Precision dual-frequency L1 + L5 GNSS multi-band"],
+  ["Battery", "72 hours typical · 18 days expedition low-power"],
+  ["Connectivity", "Cellular LTE · Wi-Fi 6E · Bluetooth 5.4 · UWB"],
+  ["Safety & Siren", "86dB emergency acoustic distress beacon (600m audible radius)"],
 ];
 
 export default function Experience() {
@@ -250,10 +263,19 @@ export default function Experience() {
   const washRef = useProgressStyle<HTMLDivElement>(
     scrollYProgress,
     useCallback((el: HTMLDivElement, p: number) => {
-      const stops = [0, CH.explode[0], CH.display[0], CH.finishes[0], CH.specs[0], 1];
-      const r = hold(p, stops, [27, 32, 20, 36, 21, 8]);
-      const g = hold(p, stops, [29, 34, 26, 29, 22, 8]);
-      const b = hold(p, stops, [39, 45, 34, 34, 29, 10]);
+      const stops = [
+        0,
+        CH.explode[0],
+        CH.water[0],
+        (CH.water[0] + CH.water[1]) / 2,
+        CH.display[0],
+        CH.finishes[0],
+        CH.specs[0],
+        1,
+      ];
+      const r = hold(p, stops, [27, 32, 8, 12, 20, 36, 21, 8]);
+      const g = hold(p, stops, [29, 34, 38, 46, 26, 29, 22, 8]);
+      const b = hold(p, stops, [39, 45, 54, 62, 34, 34, 29, 10]);
       el.style.background =
         `radial-gradient(62% 52% at 50% 44%, rgb(${r.toFixed(0)} ${g.toFixed(0)} ${b.toFixed(0)}) 0%, #08080a 72%)`;
     }, []),
@@ -376,7 +398,53 @@ export default function Experience() {
             </Fade>
         </Chapter>
 
-        {/* ---- 04 Display ---- */}
+        {/* ---- 04 Water & Dive: 100M Depth & Dynamic 3D Splashes ---- */}
+        <Chapter>
+          <Fade
+            progress={scrollYProgress}
+            at={[
+              CH.water[0],
+              CH.water[0] + 0.025,
+              CH.water[1] - 0.035,
+              CH.water[1] - 0.005,
+            ]}
+            className="absolute inset-x-0 bottom-[6vh] w-full max-w-xl md:inset-x-auto md:left-0 md:bottom-auto md:top-[16vh]"
+          >
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-[#00e5ff] shadow-[0_0_12px_#00e5ff]" />
+              <p className={`${LABEL} text-[#00e5ff]/90`}>
+                Hydrodynamics & 100M Water Resistance
+              </p>
+            </div>
+            <Headline dim="100 meters down." bright="Ocean-proof." className="mt-4" />
+            <p className="mt-5 text-sm leading-relaxed text-white/65">
+              Hermetically sealed with dual fluoroelastomer gaskets and certified to
+              EN 13319 scuba standards. When you surface, resonant acoustic pulses
+              eject trapped droplets from the speaker chamber automatically.
+            </p>
+
+            <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-4">
+              {WATER_METRICS.map((m) => (
+                <div
+                  key={m.label}
+                  className="rounded-xl border border-white/10 bg-white/[0.03] p-3.5 backdrop-blur-sm"
+                >
+                  <span className="font-mono text-xs font-semibold tracking-wider text-[#00e5ff]">
+                    {m.value}
+                  </span>
+                  <p className="mt-1 text-[0.65rem] font-medium uppercase tracking-wider text-white/85">
+                    {m.label}
+                  </p>
+                  <p className="mt-0.5 text-[0.7rem] leading-tight text-white/45">
+                    {m.note}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Fade>
+        </Chapter>
+
+        {/* ---- 05 Display & Sensors ---- */}
         <Chapter>
             {DISPLAY_COPY.map((beat, i) => (
               <Fade

@@ -8,6 +8,7 @@ import { useReducedMotion, type MotionValue } from "motion/react";
 
 import { damp, trackEased } from "@/lib/anim";
 import { WatchModel } from "./watch-model";
+import { WaterSplashes } from "./water-splashes";
 
 /**
  * One persistent WebGL canvas sits behind the whole document. Chapters do not
@@ -32,26 +33,23 @@ function Rig({
     const d = Math.min(dt, 1 / 30);
 
     // --- camera ---------------------------------------------------------
-    // Stops are the chapter boundaries, so each move finishes exactly as the
-    // next section's copy reaches the middle of the viewport.
-    // Extra stops hold the exploded framing to the end of its chapter — with
-    // only the chapter-start stops, the dive to the close-up began while the
-    // watch was still in pieces and parts flew past the lens.
-    const CAM = [0, 0.1, 0.26, 0.38, 0.46, 0.56, 0.62, 0.74, 0.85];
+    // Stops are the chapter boundaries:
+    // [Hero-start, Hero-end, Orbit-end, Explode-hold, Water-start, Water-mid, Water-end, Display-mid, Finishes, Specs, Outro]
+    const CAM = [0, 0.08, 0.20, 0.28, 0.35, 0.42, 0.49, 0.56, 0.63, 0.76, 0.88];
     const camX = trackEased(
       p,
       CAM,
-      [0, 0, -5.5, -5.5, 0, 0, 0.9, 1.7, 1.7],
+      [0, 0, -5.5, -5.5, -1.2, 1.8, 0, 0, 0.9, 1.7, 1.7],
     );
     const camY = trackEased(
       p,
       CAM,
-      [0.12, 0.12, 1.45, 1.45, 0, 0, 0.3, 0.18, 0.18],
+      [0.12, 0.12, 1.45, 1.45, 0.1, -0.15, 0, 0, 0.3, 0.18, 0.18],
     );
     const camZ = trackEased(
       p,
       CAM,
-      [6.4, 5.7, 4.65, 4.65, 3.45, 3.45, 5.2, 6.2, 6.2],
+      [6.4, 5.7, 4.65, 4.65, 4.8, 3.9, 3.45, 3.45, 5.2, 6.2, 6.2],
     );
 
     // `fov` is vertical, so a tall narrow viewport has a narrow *horizontal*
@@ -84,6 +82,8 @@ function Rig({
         -0.35,
         -TWO_PI - 0.35,
         -TWO_PI - 0.12,
+        -TWO_PI - 0.35,
+        -TWO_PI + 0.30,
         -TWO_PI,
         -TWO_PI,
         -TWO_PI - 0.5,
@@ -94,12 +94,12 @@ function Rig({
     const rotX = trackEased(
       p,
       CAM,
-      [0.16, 0.16, -0.05, -0.05, 0, 0, 0.08, 0.12, 0.16],
+      [0.16, 0.16, -0.05, -0.05, 0.18, -0.22, 0, 0, 0.08, 0.12, 0.16],
     );
     const scale = trackEased(
       p,
       CAM,
-      [1, 1, 0.94, 0.94, 1.02, 1.02, 0.96, 0.86, 0.86],
+      [1, 1, 0.94, 0.94, 0.98, 1.05, 1.02, 1.02, 0.96, 0.86, 0.86],
     );
 
     const px = reduce ? 0 : p3.x;
@@ -115,6 +115,7 @@ function Rig({
   return (
     <group ref={group}>
       <WatchModel progress={progress} />
+      <WaterSplashes progress={progress} />
     </group>
   );
 }

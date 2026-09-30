@@ -146,6 +146,8 @@ export function WatchModel({ progress }: { progress: MotionValue<number> }) {
       time: createFaceTexture("time").texture,
       activity: createFaceTexture("activity").texture,
       workout: createFaceTexture("workout").texture,
+      dive: createFaceTexture("dive").texture,
+      ecg: createFaceTexture("ecg").texture,
     }),
     [],
   );
@@ -215,13 +217,17 @@ export function WatchModel({ progress }: { progress: MotionValue<number> }) {
 
     // ---- watch face state ----------------------------------------------
     const wanted: FaceMode =
-      p < CH.display[0] + 0.045
+      p < CH.water[0]
         ? "time"
-        : p < CH.display[0] + 0.09
-          ? "activity"
-          : p < CH.display[1]
-            ? "workout"
-            : "time";
+        : p < CH.water[1]
+          ? "dive"
+          : p < CH.display[0] + 0.04
+            ? "activity"
+            : p < CH.display[0] + 0.08
+              ? "workout"
+              : p < CH.display[1]
+                ? "ecg"
+                : "time";
     if (wanted !== lastFace.current) {
       lastFace.current = wanted;
       setFaceMode(wanted);

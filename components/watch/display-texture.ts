@@ -6,7 +6,7 @@ import * as THREE from "three";
  * close-up camera position where an image would show its pixels.
  */
 
-export type FaceMode = "time" | "activity" | "workout";
+export type FaceMode = "time" | "activity" | "workout" | "dive" | "ecg";
 
 const W = 512;
 const H = 620;
@@ -154,6 +154,135 @@ function drawWorkout(ctx: CanvasRenderingContext2D) {
   });
 }
 
+function drawDive(ctx: CanvasRenderingContext2D) {
+  ctx.fillStyle = "#00e5ff";
+  ctx.font = "600 24px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("EN 13319 · DIVE COMPUTER", W / 2, 78);
+
+  // Big Depth display
+  ctx.fillStyle = FG;
+  ctx.font = "300 144px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.fillText("34.2", W / 2 - 20, 230);
+  ctx.font = "600 36px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.fillStyle = "#00e5ff";
+  ctx.fillText("M", W / 2 + 150, 230);
+
+  ctx.fillStyle = DIM;
+  ctx.font = "500 22px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("CURRENT DEPTH", W / 2, 272);
+
+  // Depth meter bar: horizontal segmented bar
+  const barY = 312;
+  const barW = W - 88;
+  const barH = 12;
+  const barX = 44;
+  ctx.fillStyle = "rgba(255,255,255,0.12)";
+  roundRect(ctx, barX, barY, barW, barH, 6);
+  ctx.fill();
+
+  const filledW = (barW * 34.2) / 100;
+  const grad = ctx.createLinearGradient(barX, 0, barX + filledW, 0);
+  grad.addColorStop(0, "#00e5ff");
+  grad.addColorStop(1, "#3b82f6");
+  ctx.fillStyle = grad;
+  roundRect(ctx, barX, barY, filledW, barH, 6);
+  ctx.fill();
+
+  // Metrics: Max depth, Water temp, Dive time
+  const metrics: [string, string][] = [
+    ["42.0 M", "MAX DEPTH"],
+    ["19.4°C", "WATER TEMP"],
+    ["28:14", "DIVE TIME"],
+  ];
+  metrics.forEach(([value, label], i) => {
+    const x = 92 + i * 164;
+    ctx.fillStyle = FG;
+    ctx.textAlign = "center";
+    ctx.font = "500 36px ui-sans-serif, system-ui, -apple-system, sans-serif";
+    ctx.fillText(value, x, 430);
+    ctx.fillStyle = DIM;
+    ctx.font = "500 20px ui-sans-serif, system-ui, -apple-system, sans-serif";
+    ctx.fillText(label, x, 464);
+  });
+
+  // Ascent rate safety banner
+  ctx.fillStyle = "rgba(0, 229, 255, 0.12)";
+  roundRect(ctx, 44, 508, W - 88, 56, 12);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(0, 229, 255, 0.4)";
+  ctx.lineWidth = 1.5;
+  roundRect(ctx, 44, 508, W - 88, 56, 12);
+  ctx.stroke();
+
+  ctx.fillStyle = "#00e5ff";
+  ctx.font = "600 22px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.fillText("● SAFE ASCENT RATE · 8 M/MIN", W / 2, 544);
+}
+
+function drawEcg(ctx: CanvasRenderingContext2D) {
+  ctx.fillStyle = "#10b981";
+  ctx.font = "600 24px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("OPTICAL PPG · ECG TRACE", W / 2, 78);
+
+  // Large BPM
+  ctx.fillStyle = FG;
+  ctx.font = "300 136px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.fillText("72", W / 2 - 35, 224);
+  ctx.font = "600 34px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.fillStyle = "#f43f5e";
+  ctx.fillText("BPM ♥", W / 2 + 105, 224);
+
+  // Medical ECG waveform trace
+  ctx.strokeStyle = "#10b981";
+  ctx.lineWidth = 4;
+  ctx.lineJoin = "round";
+  ctx.shadowColor = "#10b981";
+  ctx.shadowBlur = 10;
+  ctx.beginPath();
+  const baseline = 330;
+  const points = [
+    [40, 0], [90, 0], [110, -6], [120, 4], [130, 0], [150, 0],
+    [165, -8], [175, 48], [190, -96], [205, 24], [215, -4], [230, 0],
+    [260, -18], [285, 0], [330, 0],
+    [345, -8], [355, 48], [370, -96], [385, 24], [395, -4], [410, 0],
+    [435, -18], [460, 0], [480, 0]
+  ];
+  points.forEach(([x, yOffset], idx) => {
+    if (idx === 0) ctx.moveTo(x, baseline + yOffset);
+    else ctx.lineTo(x, baseline + yOffset);
+  });
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Stats: SpO2, HRV, Skin Temp
+  const vitals: [string, string][] = [
+    ["99%", "SpO₂ OXYGEN"],
+    ["68 MS", "HRV INDEX"],
+    ["36.6°", "SKIN TEMP"],
+  ];
+  vitals.forEach(([value, label], i) => {
+    const x = 92 + i * 164;
+    ctx.fillStyle = FG;
+    ctx.textAlign = "center";
+    ctx.font = "500 36px ui-sans-serif, system-ui, -apple-system, sans-serif";
+    ctx.fillText(value, x, 440);
+    ctx.fillStyle = DIM;
+    ctx.font = "500 20px ui-sans-serif, system-ui, -apple-system, sans-serif";
+    ctx.fillText(label, x, 474);
+  });
+
+  // Sinus rhythm status pill
+  ctx.fillStyle = "rgba(16, 185, 129, 0.12)";
+  roundRect(ctx, 50, 516, W - 100, 52, 10);
+  ctx.fill();
+  ctx.fillStyle = "#10b981";
+  ctx.font = "600 20px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.fillText("● SINUS RHYTHM · NO SIGNS OF AFIB", W / 2, 549);
+}
+
 /**
  * Draws one face state. The panel geometry is a plain rectangle, so the rounded
  * corners are painted here — the case sits over the edge and hides the seam.
@@ -180,7 +309,9 @@ export function drawFace(canvas: HTMLCanvasElement, mode: FaceMode) {
 
   if (mode === "time") drawTime(ctx);
   else if (mode === "activity") drawActivity(ctx);
-  else drawWorkout(ctx);
+  else if (mode === "workout") drawWorkout(ctx);
+  else if (mode === "dive") drawDive(ctx);
+  else if (mode === "ecg") drawEcg(ctx);
 
   ctx.restore();
 }

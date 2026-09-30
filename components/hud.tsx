@@ -22,10 +22,11 @@ export const CHAPTERS = [
   ["01", "INTRO", CH.hero[0]],
   ["02", "FORM", CH.orbit[0]],
   ["03", "CONSTRUCTION", CH.explode[0]],
-  ["04", "DISPLAY", CH.display[0]],
-  ["05", "FINISH", CH.finishes[0]],
-  ["06", "SPECIFICATION", CH.specs[0]],
-  ["07", "ORDER", CH.outro[0]],
+  ["04", "WATER & DIVE", CH.water[0]],
+  ["05", "DISPLAY & SENSORS", CH.display[0]],
+  ["06", "FINISH", CH.finishes[0]],
+  ["07", "SPECIFICATION", CH.specs[0]],
+  ["08", "ORDER", CH.outro[0]],
 ] as const;
 
 function Bracket({ className }: { className: string }) {

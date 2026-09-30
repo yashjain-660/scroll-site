@@ -71,13 +71,14 @@ export function trackEased(p: number, stops: number[], values: number[]): number
  * the camera knows which chapter it is in.
  */
 export const CH = {
-  hero: [0.0, 0.1] as const,
-  orbit: [0.1, 0.26] as const,
-  explode: [0.26, 0.44] as const,
-  display: [0.44, 0.58] as const,
-  finishes: [0.58, 0.74] as const,
-  specs: [0.74, 0.85] as const,
-  outro: [0.85, 1.0] as const,
+  hero: [0.0, 0.08] as const,
+  orbit: [0.08, 0.20] as const,
+  explode: [0.20, 0.35] as const,
+  water: [0.35, 0.49] as const,
+  display: [0.49, 0.63] as const,
+  finishes: [0.63, 0.76] as const,
+  specs: [0.76, 0.88] as const,
+  outro: [0.88, 1.0] as const,
 };
 
 /**
