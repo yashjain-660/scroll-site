@@ -133,13 +133,11 @@ function Rig({
 function Studio() {
   return (
     <>
-      <ambientLight intensity={1.2} color="#ffffff" />
-      <directionalLight position={[0, 4, 3]} intensity={2.2} color="#ffffff" />
-      <directionalLight position={[-4, 2, 2]} intensity={1.8} color="#cfe4ff" />
+      <ambientLight intensity={1.4} color="#ffffff" />
+      <directionalLight position={[0, 4, 3]} intensity={2.6} color="#ffffff" />
+      <directionalLight position={[-4, 2, 2]} intensity={2.0} color="#cfe4ff" />
       <directionalLight position={[4, 1, 2]} intensity={2.0} color="#ffd9c2" />
-      <directionalLight position={[0, -3, 2]} intensity={1.0} color="#8fa5c9" />
-      <directionalLight position={[0, 0, -4]} intensity={1.2} color="#404455" />
-      <hemisphereLight args={["#ffffff", "#101015", 0.8]} />
+      <hemisphereLight args={["#ffffff", "#101015", 0.9]} />
     </>
   );
 }
@@ -156,7 +154,7 @@ export default function WatchScene({
   return (
     <Canvas
       style={{ background: "transparent" }}
-      dpr={[1, 2]}
+      dpr={[1, 1.5]}
       gl={{
         antialias: true,
         alpha: true,
@@ -169,6 +167,9 @@ export default function WatchScene({
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 1.05;
+        gl.domElement.addEventListener("webglcontextlost", (event) => {
+          event.preventDefault();
+        });
       }}
     >
       <Rig
@@ -177,9 +178,6 @@ export default function WatchScene({
         overrideFaceMode={overrideFaceMode}
       />
       <Studio />
-      {/* a touch of direct light so the titanium edges catch a hard specular */}
-      <directionalLight position={[3, 5, 4]} intensity={0.75} />
-      <directionalLight position={[-4, -1, 2]} intensity={0.35} color="#9db6de" />
     </Canvas>
   );
 }
