@@ -172,14 +172,20 @@ export default function WatchScene({
   return (
     <Canvas
       dpr={[1, 2]}
-      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+      gl={{
+        antialias: true,
+        alpha: true,
+        stencil: false,
+        depth: true,
+        powerPreference: "high-performance",
+        failIfMajorPerformanceCaveat: false,
+      }}
       camera={{ fov: 30, position: [0, 0.12, 6.4], near: 0.1, far: 60 }}
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 1.05;
       }}
     >
-      <color attach="background" args={["#08080a"]} />
       <Rig
         progress={progress}
         reduce={reduce}
