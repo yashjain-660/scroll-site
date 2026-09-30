@@ -1,4 +1,8 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TheWebVale One — Scroll-Driven 3D Product Site
+
+Live Production Platform: [https://watch.thewebvale.com](https://watch.thewebvale.com)
+
+A high-performance scroll-driven 3D product launch site engineered with Next.js 16, React 19, React Three Fiber, Three.js, and Motion.
 
 ## Getting Started
 
