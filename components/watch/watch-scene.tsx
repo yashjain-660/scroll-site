@@ -155,6 +155,7 @@ export default function WatchScene({
 
   return (
     <Canvas
+      style={{ background: "transparent" }}
       dpr={[1, 2]}
       gl={{
         antialias: true,

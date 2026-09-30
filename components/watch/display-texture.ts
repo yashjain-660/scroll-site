@@ -423,7 +423,7 @@ function drawCompass(ctx: CanvasRenderingContext2D) {
  * corners are painted here — the case sits over the edge and hides the seam.
  */
 export function drawFace(canvas: HTMLCanvasElement, mode: FaceMode) {
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) return;
 
   ctx.clearRect(0, 0, W, H);
