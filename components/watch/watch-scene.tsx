@@ -41,41 +41,30 @@ function Rig({
     const camX = trackEased(
       p,
       CAM,
-      [0, 0, -5.5, -5.5, -1.2, 1.8, 0, 0, 0.9, 1.7, 1.7],
+      [0, 0, -1.2, -1.4, -1.3, -1.2, 0.8, 0.8, -0.7, 0.85, 0],
     );
     const camY = trackEased(
       p,
       CAM,
-      [0.12, 0.12, 1.45, 1.45, 0.1, -0.15, 0, 0, 0.3, 0.18, 0.18],
+      [0.12, 0.12, 0.45, 0.45, 0.1, -0.1, 0, 0, 0.2, 0.12, 0.12],
     );
     const camZ = trackEased(
       p,
       CAM,
-      [6.4, 5.7, 4.65, 4.65, 4.8, 3.9, 3.45, 3.45, 5.2, 6.2, 6.2],
-    );
-
-    // Desktop target offset track to counterbalance copy:
-    // Negative targetX shifts the watch to the RIGHT; positive shifts to the LEFT.
-    const deskTargetX = trackEased(
-      p,
-      CAM,
-      [0, 0, -1.5, -1.5, -1.5, -1.5, 1.25, 1.25, -0.85, 1.45, 0],
+      [6.4, 5.7, 4.8, 4.8, 4.8, 4.2, 3.8, 3.8, 5.2, 5.8, 6.2],
     );
 
     const aspect = size.height > 0 ? size.width / size.height : 1;
     const isPortrait = aspect < 1;
-    const fit = isPortrait ? Math.min(1 / (aspect * 1.18), 1.52) : 1;
+    const fit = isPortrait ? Math.min(1 / aspect, 1.7) : 1;
 
-    // Mobile: center horizontally, lift vertically so watch commands the top 44%
-    // Desktop: apply deskTargetX to place watch in opposite half of the copy
-    const targetX = isPortrait ? 0 : deskTargetX;
-    const targetY = isPortrait ? -0.88 : 0;
-    const targetZ = 0;
+    // Mobile: strictly center X at 0, elevate Y slightly (-0.52) so watch stays in upper 46%
+    // Desktop: center target at origin (0, 0, 0)
+    const targetY = isPortrait ? -0.52 : 0;
+    target.set(0, targetY, 0);
 
-    target.set(targetX, targetY, targetZ);
-
-    const targetCamX = isPortrait ? camX * 0.22 : camX;
-    const targetCamY = isPortrait ? camY + 0.12 : camY;
+    const targetCamX = isPortrait ? 0 : camX;
+    const targetCamY = isPortrait ? camY + 0.1 : camY;
     const targetCamZ = camZ * fit;
 
     camera.position.x = damp(camera.position.x, targetCamX, 4.5, d);
@@ -114,14 +103,9 @@ function Rig({
     const scaleBase = trackEased(
       p,
       CAM,
-      [1, 1, 0.94, 0.94, 0.98, 1.05, 1.02, 1.02, 0.96, 0.86, 0.86],
+      [1, 1, 0.94, 0.94, 0.98, 1.02, 1.0, 1.0, 0.96, 0.88, 0.88],
     );
-    const portraitScaleMultiplier = trackEased(
-      p,
-      CAM,
-      [0.96, 0.96, 0.82, 0.82, 0.92, 0.95, 1.06, 1.06, 0.94, 0.80, 0.85],
-    );
-    const finalScale = isPortrait ? scaleBase * portraitScaleMultiplier : scaleBase;
+    const finalScale = isPortrait ? scaleBase * 0.88 : scaleBase;
 
     const px = reduce ? 0 : p3.x;
     const py = reduce ? 0 : p3.y;
