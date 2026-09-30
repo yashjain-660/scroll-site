@@ -239,16 +239,16 @@ const DISPLAY_COPY = [
   },
 ];
 
-const SPECS: [string, string][] = [
+const SPECS: [string, string, boolean?][] = [
   ["Case", "44mm · Grade 5 titanium · 34g · IP6X dustproof"],
-  ["Action Button", "Tactical anodized orange · custom action shortcut & siren hold"],
+  ["Action Button", "Tactical anodized orange · custom action shortcut & siren hold", true],
   ["Display", "LTPO OLED · 3000 nits · 1–120Hz · Sapphire crystal"],
   ["Water & Dive", "100m · 10 ATM · EN 13319 dive certified · acoustic purge"],
   ["Sensors", "4-channel optical PPG · ECG trace · SpO₂ · depth · water temp"],
-  ["GPS", "Precision dual-frequency L1 + L5 GNSS multi-band"],
+  ["GPS", "Precision dual-frequency L1 + L5 GNSS multi-band", true],
   ["Battery", "72 hours typical · 18 days expedition low-power"],
-  ["Connectivity", "Cellular LTE · Wi-Fi 6E · Bluetooth 5.4 · UWB"],
-  ["Safety & Siren", "86dB emergency acoustic distress beacon (600m audible radius)"],
+  ["Connectivity", "Cellular LTE · Wi-Fi 6E · Bluetooth 5.4 · UWB", true],
+  ["Safety & Siren", "86dB emergency acoustic distress beacon (600m audible radius)", true],
 ];
 
 export default function Experience() {
@@ -311,7 +311,7 @@ export default function Experience() {
 
 
   return (
-    <div ref={stageRef} className="relative bg-[#08080a]" style={{ height: `${STAGE_VH}vh` }}>
+    <div id="stage" ref={stageRef} className="relative bg-[#08080a]" style={{ height: `${STAGE_VH}vh` }}>
       {/* ---------- WebGL layer ---------- */}
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#08080a]">
         <div ref={washRef} className="absolute inset-0" />
@@ -323,15 +323,15 @@ export default function Experience() {
         </div>
         <Hud progress={scrollYProgress} chapter={chapter} />
 
-        {/* Interactive Tactical Face Dock (visible during Form through Specs chapters) */}
+        {/* Interactive Tactical Face Dock (visible during Form through Finishes chapters) */}
         <div
-          className={`pointer-events-auto absolute left-1/2 top-16 md:top-auto md:bottom-16 z-30 -translate-x-1/2 transition-all duration-300 ${
-            chapter >= 1 && chapter <= 6
+          className={`pointer-events-auto absolute left-1/2 top-[44vh] md:top-auto md:bottom-8 z-30 -translate-x-1/2 transition-all duration-300 ${
+            chapter >= 1 && chapter <= 5
               ? "opacity-100 translate-y-0"
               : "opacity-0 pointer-events-none -translate-y-3 md:translate-y-3"
           }`}
         >
-          <div className="flex max-w-[94vw] items-center gap-1 overflow-x-auto rounded-full border border-white/15 bg-black/80 px-2 py-1 shadow-[0_8px_32px_rgba(0,0,0,0.7)] backdrop-blur-md">
+          <div className="flex max-w-[94vw] items-center gap-1 overflow-x-auto rounded-full border border-white/15 bg-black/85 px-2 py-1 shadow-[0_8px_32px_rgba(0,0,0,0.7)] backdrop-blur-md">
             <span className="hidden px-2 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-white/40 md:inline-block">
               Face:
             </span>
@@ -369,7 +369,7 @@ export default function Experience() {
         </div>
 
         {/* phones stack copy under the product; this keeps it readable */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-[52vh] bg-gradient-to-t from-[#08080a] via-[#08080a]/88 to-transparent md:hidden" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-[52vh] bg-gradient-to-t from-[#08080a] via-[#08080a]/92 to-transparent md:hidden" />
 
         {/* ---------- copy layer, pinned to the same viewport box ---------- */}
         <div className="pointer-events-none absolute inset-0 z-30">
@@ -379,7 +379,7 @@ export default function Experience() {
             progress={scrollYProgress}
             at={HERO_BEATS.kicker}
             entryY={0}
-            className={`${LABEL} absolute left-0 top-[15vh]`}
+            className={`${LABEL} absolute left-0 top-[11vh] md:top-[15vh]`}
           >
             Made for wrists. Built for years.
           </Fade>
@@ -389,9 +389,9 @@ export default function Experience() {
             at={HERO_BEATS.title}
             entryY={0}
             exitY={-70}
-            className="absolute left-0 top-[19vh]"
+            className="absolute left-0 top-[15vh] md:top-[19vh]"
           >
-            <h1 className={`${DISPLAY} text-[22vw] text-[#f0ece4] md:text-[13vw]`}>
+            <h1 className={`${DISPLAY} text-[18vw] text-[#f0ece4] md:text-[13vw]`}>
               One
             </h1>
           </Fade>
@@ -400,7 +400,7 @@ export default function Experience() {
             progress={scrollYProgress}
             at={HERO_BEATS.sub}
             entryY={0}
-            className="absolute left-0 top-[33vh] max-w-[15rem] text-sm leading-relaxed text-white/60 md:left-auto md:right-0 md:top-[40vh] md:max-w-xs md:text-right md:text-base"
+            className="absolute left-0 bottom-[20vh] max-w-[15rem] text-xs leading-relaxed text-white/60 md:left-auto md:right-0 md:bottom-auto md:top-[40vh] md:max-w-xs md:text-right md:text-base"
           >
             Titanium, sapphire, and a display that knows when to shut up.
           </Fade>
@@ -409,14 +409,14 @@ export default function Experience() {
             progress={scrollYProgress}
             at={HERO_BEATS.card}
             entryY={0}
-            className="absolute bottom-[16vh] left-0 max-w-[15rem] border border-white/10 bg-white/[0.03] p-4"
+            className="absolute bottom-[6vh] left-0 max-w-[13.5rem] border border-white/10 bg-white/[0.03] p-3 md:bottom-[16vh] md:max-w-[15rem] md:p-4"
           >
             <p className={`${LABEL} text-white/50`}>
-              Designed
+              Engineered
               <br />
-              by thewebvale
+              by thewebvale studios
             </p>
-            <div className="my-3 h-px w-full bg-[linear-gradient(to_right,rgba(255,255,255,0.2)_50%,transparent_50%)] bg-[length:6px_1px]" />
+            <div className="my-2 md:my-3 h-px w-full bg-[linear-gradient(to_right,rgba(255,255,255,0.2)_50%,transparent_50%)] bg-[length:6px_1px]" />
             <p className="text-right text-xs leading-relaxed text-white/45">
               A watch that gets
               <br />
@@ -459,11 +459,23 @@ export default function Experience() {
                 CH.explode[1] - 0.05,
                 CH.explode[1] - 0.01,
               ]}
-              className="absolute inset-x-0 bottom-[6vh] w-full max-w-[17rem] md:inset-x-auto md:left-0 md:bottom-auto md:top-[15vh]"
+              className="absolute inset-x-0 bottom-[5vh] w-full max-w-sm md:inset-x-auto md:left-0 md:bottom-auto md:top-[16vh] md:max-w-xs"
             >
               <p className={LABEL}>Construction</p>
-              <Headline dim="Six parts." bright="One seam." className="mt-4" />
-              <ul className="mt-7 space-y-3 border-l border-white/10 pl-5">
+              <Headline dim="Six parts." bright="One seam." className="mt-3 md:mt-4 text-[7vw] md:text-[4vw]" />
+              
+              {/* Mobile 2-column compact grid to keep watch visible */}
+              <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 md:hidden">
+                {PARTS.map(([name, note]) => (
+                  <div key={name} className="border-l border-white/15 pl-2">
+                    <p className="text-[0.72rem] font-medium text-white/90">{name}</p>
+                    <p className="text-[0.62rem] leading-tight text-white/45">{note}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop detailed list */}
+              <ul className="mt-6 hidden md:block space-y-2.5 border-l border-white/10 pl-5">
                 {PARTS.map(([name, note]) => (
                   <li key={name}>
                     <p className="text-sm font-medium text-white/90">{name}</p>
@@ -484,7 +496,7 @@ export default function Experience() {
               CH.water[1] - 0.035,
               CH.water[1] - 0.005,
             ]}
-            className="absolute inset-x-0 bottom-[4vh] w-full max-w-xl md:inset-x-auto md:left-0 md:bottom-auto md:top-[16vh]"
+            className="absolute inset-x-0 bottom-[4vh] w-full max-w-sm md:inset-x-auto md:left-0 md:bottom-auto md:top-[16vh] md:max-w-md lg:max-w-lg"
           >
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-[#00e5ff] shadow-[0_0_12px_#00e5ff]" />
@@ -492,23 +504,23 @@ export default function Experience() {
                 Hydrodynamics & 100M Water Resistance
               </p>
             </div>
-            <Headline dim="100 meters down." bright="Ocean-proof." className="mt-3 md:mt-4 text-[7.5vw] md:text-[4.2vw]" />
-            <p className="mt-3 md:mt-5 text-xs md:text-sm leading-relaxed text-white/65">
+            <Headline dim="100 meters down." bright="Ocean-proof." className="mt-2.5 md:mt-4 text-[6.8vw] md:text-[4.2vw]" />
+            <p className="mt-2 md:mt-5 text-xs md:text-sm leading-relaxed text-white/65 line-clamp-2 md:line-clamp-none">
               Hermetically sealed with dual fluoroelastomer gaskets and certified to
               EN 13319 scuba standards. When you surface, resonant acoustic pulses
               eject trapped droplets from the speaker chamber automatically.
             </p>
 
-            <div className="mt-4 md:mt-7 grid grid-cols-2 gap-2 sm:gap-4">
+            <div className="mt-3 md:mt-7 grid grid-cols-2 gap-2 sm:gap-4">
               {WATER_METRICS.map((m) => (
                 <div
                   key={m.label}
-                  className="rounded-xl border border-white/10 bg-white/[0.04] p-2.5 sm:p-3.5 backdrop-blur-sm"
+                  className="rounded-xl border border-white/10 bg-white/[0.04] p-2 sm:p-3.5 backdrop-blur-sm"
                 >
-                  <span className="font-mono text-[0.72rem] sm:text-xs font-semibold tracking-wider text-[#00e5ff]">
+                  <span className="font-mono text-[0.7rem] sm:text-xs font-semibold tracking-wider text-[#00e5ff]">
                     {m.value}
                   </span>
-                  <p className="mt-0.5 text-[0.6rem] sm:text-[0.65rem] font-medium uppercase tracking-wider text-white/85">
+                  <p className="mt-0.5 text-[0.58rem] sm:text-[0.65rem] font-medium uppercase tracking-wider text-white/85">
                     {m.label}
                   </p>
                   <p className="mt-0.5 text-[0.65rem] sm:text-[0.7rem] leading-tight text-white/45 hidden sm:block">
@@ -527,18 +539,18 @@ export default function Experience() {
                 key={beat.bright}
                 progress={scrollYProgress}
                 at={DISPLAY_BEATS[i]}
-                className="absolute inset-x-0 bottom-[11vh]"
+                className="absolute inset-x-0 bottom-[6vh] w-full max-w-sm md:inset-x-auto md:right-0 md:bottom-auto md:top-[26vh] md:max-w-md md:text-left"
               >
-                <p className={`${LABEL} mb-3`}>{beat.kicker}</p>
-                <Headline dim={beat.dim} bright={beat.bright} />
-                <p className="mt-4 max-w-md text-sm leading-relaxed text-white/55">
+                <p className={`${LABEL} mb-2 md:mb-3`}>{beat.kicker}</p>
+                <Headline dim={beat.dim} bright={beat.bright} className="text-[7.5vw] md:text-[4.2vw]" />
+                <p className="mt-3 md:mt-4 max-w-md text-xs md:text-sm leading-relaxed text-white/55">
                   {beat.body}
                 </p>
               </Fade>
             ))}
         </Chapter>
 
-        {/* ---- 05 Finishes ---- */}
+        {/* ---- 06 Finishes ---- */}
         <Chapter>
             <Fade
               progress={scrollYProgress}
@@ -548,11 +560,11 @@ export default function Experience() {
                 CH.finishes[1] - 0.025,
                 CH.finishes[1] - 0.002,
               ]}
-              className="absolute inset-x-0 bottom-[11vh]"
+              className="absolute inset-x-0 bottom-[7vh] w-full max-w-sm md:inset-x-auto md:left-0 md:bottom-[12vh] md:max-w-xl"
             >
               <p className={LABEL}>Finishes</p>
-              <div className="mt-4 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-                <h2 className={`${DISPLAY} text-[9vw] text-white md:text-[4.6vw]`}>
+              <div className="mt-3 md:mt-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <h2 className={`${DISPLAY} text-[8vw] text-white md:text-[4.6vw]`}>
                   {FINISHES[finish].name}
                 </h2>
                 <div className="flex items-center gap-3">
@@ -573,21 +585,24 @@ export default function Experience() {
             </Fade>
         </Chapter>
 
-        {/* ---- 06 Specification ---- */}
+        {/* ---- 07 Specification ---- */}
         <Chapter>
             <Fade
               progress={scrollYProgress}
               at={[CH.specs[0], CH.specs[0] + 0.02, CH.specs[1] - 0.02, CH.specs[1]]}
-              className="absolute inset-x-0 bottom-[5vh] w-full md:inset-x-auto md:bottom-auto md:right-12 md:top-[18vh] md:max-w-md"
+              className="absolute inset-x-0 bottom-[4vh] w-full max-w-sm md:inset-x-auto md:bottom-auto md:right-12 md:top-[16vh] md:max-w-md"
             >
               <p className={LABEL}>Specification</p>
-              <dl className="mt-5 divide-y divide-white/10 border-y border-white/10">
-                {SPECS.map(([k, v]) => (
-                  <div key={k} className="flex gap-6 py-3">
-                    <dt className="w-28 shrink-0 text-[0.65rem] uppercase tracking-[0.18em] text-white/40">
+              <dl className="mt-3 md:mt-5 divide-y divide-white/10 border-y border-white/10">
+                {SPECS.map(([k, v, secondary]) => (
+                  <div
+                    key={k}
+                    className={`gap-4 py-1.5 md:gap-6 md:py-3 ${secondary ? "hidden sm:flex" : "flex"}`}
+                  >
+                    <dt className="w-24 md:w-28 shrink-0 text-[0.62rem] md:text-[0.65rem] uppercase tracking-[0.18em] text-white/40">
                       {k}
                     </dt>
-                    <dd className="text-sm leading-relaxed text-white/80">{v}</dd>
+                    <dd className="text-xs md:text-sm leading-relaxed text-white/80">{v}</dd>
                   </div>
                 ))}
               </dl>

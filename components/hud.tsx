@@ -77,7 +77,9 @@ export default function Hud({
   const hintRef = useProgressStyle<HTMLDivElement>(
     progress,
     useCallback((el, p) => {
-      el.style.opacity = String(hold(p, [CH.specs[0], CH.specs[1]], [1, 0]));
+      const o = hold(p, [0, 0.015, 0.045, 0.075], [0, 1, 1, 0]);
+      el.style.opacity = String(o);
+      el.style.visibility = o < 0.004 ? "hidden" : "visible";
     }, []),
   );
 
@@ -99,7 +101,7 @@ export default function Hud({
       <svg
         ref={reticleRef}
         viewBox="0 0 400 400"
-        className="absolute left-1/2 top-1/2 h-[68vh] w-[68vh]"
+        className="absolute left-1/2 top-[28vh] md:top-1/2 h-[50vh] w-[50vh] md:h-[68vh] md:w-[68vh]"
         style={{ transform: "translate(-50%, -50%)" }}
       >
         <circle
@@ -156,7 +158,7 @@ export default function Hud({
       </div>
 
       {/* dashed rules flanking the subject */}
-      <div className="absolute inset-x-0 top-1/2 flex items-center justify-between px-5 md:px-8">
+      <div className="absolute inset-x-0 top-[28vh] md:top-1/2 flex items-center justify-between px-5 md:px-8">
         <span className="h-px w-[8vw] bg-[linear-gradient(to_right,rgba(255,255,255,0.22)_50%,transparent_50%)] bg-[length:7px_1px]" />
         <span className="h-px w-[8vw] bg-[linear-gradient(to_right,rgba(255,255,255,0.22)_50%,transparent_50%)] bg-[length:7px_1px]" />
       </div>

@@ -1,7 +1,9 @@
+import Image from "next/image";
+
 const COLUMNS: [string, string[]][] = [
   ["One", ["Overview", "Specification", "Bands", "Compare"]],
   ["Support", ["Setup", "Repair", "Warranty", "Contact"]],
-  ["thewebvale", ["Studio", "Work", "Careers", "Press"]],
+  ["thewebvale studios", ["Studio", "Work", "Careers", "Press"]],
 ];
 
 export default function SiteFooter() {
@@ -9,10 +11,18 @@ export default function SiteFooter() {
     <footer className="border-t border-white/8 bg-[#08080a] px-6 py-16 md:px-12">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-10 md:grid-cols-4">
-          <p className="text-xl font-semibold uppercase tracking-[-0.02em] text-[#f0ece4]">
-            thewebvale
-            <span className="text-white/35"> One</span>
-          </p>
+          <div>
+            <Image
+              src="/logo-white.png"
+              alt="thewebvale studios"
+              width={130}
+              height={28}
+              className="h-6 w-auto object-contain"
+            />
+            <p className="mt-2.5 text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-white/40">
+              thewebvale studios
+            </p>
+          </div>
           {COLUMNS.map(([title, items]) => (
             <div key={title}>
               <p className="text-xs uppercase tracking-wider text-white/40">
@@ -35,10 +45,9 @@ export default function SiteFooter() {
         </div>
 
         <div className="mt-14 flex flex-col gap-2 border-t border-white/8 pt-6 text-xs text-white/35 md:flex-row md:items-center md:justify-between">
-          <p>© {new Date().getFullYear()} thewebvale. A concept product.</p>
+          <p>© {new Date().getFullYear()} thewebvale studios. All rights reserved.</p>
           <p>
-            Watch modelled procedurally in three.js. Lifestyle photography is
-            placeholder stock.
+            Engineered and crafted by thewebvale studios.
           </p>
         </div>
       </div>

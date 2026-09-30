@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import { useEffect, useState } from "react";
 
@@ -51,9 +52,19 @@ export default function SiteNav() {
       <nav className="flex h-14 items-center justify-between px-5 md:px-14">
         <a
           href="#top"
-          className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-[#f0ece4]"
+          className="flex items-center gap-2 group transition-opacity hover:opacity-85"
         >
-          thewebvale
+          <Image
+            src="/logo-white.png"
+            alt="thewebvale studios"
+            width={112}
+            height={24}
+            priority
+            className="h-[18px] w-auto object-contain"
+          />
+          <span className="hidden sm:inline-block text-[0.6rem] font-semibold uppercase tracking-[0.24em] text-white/40 border-l border-white/20 pl-2 ml-0.5">
+            One
+          </span>
         </a>
         <ul className="flex items-center gap-7">
           {LINKS.map(([label, id]) => (

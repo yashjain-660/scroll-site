@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { MotionValue } from "motion/react";
 
@@ -144,25 +144,21 @@ export function WatchModel({
   }, [geo]);
 
   // --- watch face ---------------------------------------------------------
-  // One texture per face state, built once and swapped by `map`.
-  const faces = useMemo(
-    () => ({
-      time: createFaceTexture("time").texture,
-      activity: createFaceTexture("activity").texture,
-      workout: createFaceTexture("workout").texture,
-      dive: createFaceTexture("dive").texture,
-      ecg: createFaceTexture("ecg").texture,
-      night: createFaceTexture("night").texture,
-      compass: createFaceTexture("compass").texture,
-    }),
-    [],
-  );
-  const [faceMode, setFaceMode] = useState<FaceMode>("time");
+  // Lazily created on first request, directly updated on material ref without React state re-renders
+  const faceCache = useRef<Partial<Record<FaceMode, THREE.CanvasTexture>>>({});
+  const getFace = useCallback((mode: FaceMode) => {
+    if (!faceCache.current[mode]) {
+      faceCache.current[mode] = createFaceTexture(mode).texture;
+    }
+    return faceCache.current[mode]!;
+  }, []);
+
   const lastFace = useRef<FaceMode>("time");
   useEffect(() => {
-    const f = faces;
-    return () => Object.values(f).forEach((t) => t.dispose());
-  }, [faces]);
+    return () => {
+      Object.values(faceCache.current).forEach((t) => t?.dispose());
+    };
+  }, []);
 
   // --- refs driven per frame ---------------------------------------------
   const crystalRef = useRef<THREE.Group>(null);
@@ -176,6 +172,7 @@ export function WatchModel({
   const strapTopRef = useRef<THREE.Group>(null);
   const strapBottomRef = useRef<THREE.Group>(null);
 
+  const panelMat = useRef<THREE.MeshBasicMaterial>(null);
   const caseMat = useRef<THREE.MeshStandardMaterial>(null);
   const actionMat = useRef<THREE.MeshStandardMaterial>(null);
   const backMat = useRef<THREE.MeshStandardMaterial>(null);
@@ -244,7 +241,10 @@ export function WatchModel({
                     : "time");
     if (wanted !== lastFace.current) {
       lastFace.current = wanted;
-      setFaceMode(wanted);
+      if (panelMat.current) {
+        panelMat.current.map = getFace(wanted);
+        panelMat.current.needsUpdate = true;
+      }
     }
 
     // ---- finish --------------------------------------------------------
@@ -362,7 +362,7 @@ export function WatchModel({
       {/* ---- display panel ---- */}
       <group ref={panelRef}>
         <mesh geometry={geo.panel} position={[0, 0, FRONT + 0.004]}>
-          <meshBasicMaterial map={faces[faceMode]} toneMapped={false} />
+          <meshBasicMaterial ref={panelMat} map={getFace("time")} toneMapped={false} />
         </mesh>
       </group>
 

@@ -8,9 +8,7 @@ export default function Home() {
   return (
     <div id="top" className="bg-[#08080a]">
       <SiteNav />
-      <div id="stage">
-        <Experience />
-      </div>
+      <Experience />
       <Gallery />
       <Reserve />
       <SiteFooter />
