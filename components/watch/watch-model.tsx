@@ -6,7 +6,7 @@ import * as THREE from "three";
 import type { MotionValue } from "motion/react";
 
 import { CH, damp, range, track } from "@/lib/anim";
-import { createFaceTexture, type FaceMode } from "./display-texture";
+import { createFaceTexture, drawFace, type FaceMode } from "./display-texture";
 
 /**
  * A procedural "thewebvale One".
@@ -145,20 +145,53 @@ export function WatchModel({
 
   // --- watch face ---------------------------------------------------------
   // Lazily created on first request, directly updated on material ref without React state re-renders
-  const faceCache = useRef<Partial<Record<FaceMode, THREE.CanvasTexture>>>({});
+  interface FaceEntry {
+    canvas: HTMLCanvasElement;
+    texture: THREE.CanvasTexture;
+  }
+  const faceCache = useRef<Partial<Record<FaceMode, FaceEntry>>>({});
   const getFace = useCallback((mode: FaceMode) => {
     if (!faceCache.current[mode]) {
-      faceCache.current[mode] = createFaceTexture(mode).texture;
+      faceCache.current[mode] = createFaceTexture(mode);
     }
-    return faceCache.current[mode]!;
+    return faceCache.current[mode]!.texture;
+  }, []);
+
+  const updateFaceTexture = useCallback((mode: FaceMode, now: Date = new Date()) => {
+    const entry = faceCache.current[mode];
+    if (entry) {
+      drawFace(entry.canvas, mode, now);
+      entry.texture.needsUpdate = true;
+    }
   }, []);
 
   const lastFace = useRef<FaceMode>("time");
   useEffect(() => {
     return () => {
-      Object.values(faceCache.current).forEach((t) => t?.dispose());
+      Object.values(faceCache.current).forEach((entry) => entry?.texture.dispose());
     };
   }, []);
+
+  // Live clock: 1Hz heartbeat interval keeps "time" and "night" dials live to the current second/minute
+  useEffect(() => {
+    const tick = () => {
+      const active = lastFace.current;
+      if (active === "time" || active === "night") {
+        updateFaceTexture(active, new Date());
+      }
+    };
+    const timer = setInterval(tick, 1000);
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        tick();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [updateFaceTexture]);
 
   // --- refs driven per frame ---------------------------------------------
   const crystalRef = useRef<THREE.Group>(null);
@@ -241,6 +274,9 @@ export function WatchModel({
                     : "time");
     if (wanted !== lastFace.current) {
       lastFace.current = wanted;
+      if (wanted === "time" || wanted === "night") {
+        updateFaceTexture(wanted, new Date());
+      }
       if (panelMat.current) {
         panelMat.current.map = getFace(wanted);
         panelMat.current.needsUpdate = true;

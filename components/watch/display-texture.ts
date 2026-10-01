@@ -62,20 +62,94 @@ function ring(
   ctx.stroke();
 }
 
-function drawTime(ctx: CanvasRenderingContext2D) {
+export function getLiveTimeString(date: Date = new Date(), force24 = false): {
+  timeStr: string;
+  ampm: string;
+  is24: boolean;
+} {
+  let is24 = force24;
+  if (!is24) {
+    try {
+      const opts = new Intl.DateTimeFormat(undefined, { hour: "numeric" }).resolvedOptions();
+      if (opts.hourCycle) {
+        is24 = opts.hourCycle === "h23" || opts.hourCycle === "h24";
+      }
+    } catch {}
+  }
+
+  const rawH = date.getHours();
+  const mins = String(date.getMinutes()).padStart(2, "0");
+
+  if (is24) {
+    return {
+      timeStr: `${String(rawH).padStart(2, "0")}:${mins}`,
+      ampm: "",
+      is24: true,
+    };
+  }
+
+  const h12 = rawH % 12 || 12;
+  const ampm = rawH >= 12 ? "PM" : "AM";
+  return {
+    timeStr: `${h12}:${mins}`,
+    ampm,
+    is24: false,
+  };
+}
+
+export function getLiveDateString(date: Date = new Date()): string {
+  const DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+  return `${DAYS[date.getDay()]} ${date.getDate()} ${MONTHS[date.getMonth()]}`;
+}
+
+let cachedBattery: string = "98%";
+if (typeof navigator !== "undefined" && "getBattery" in navigator) {
+  try {
+    (navigator as any).getBattery().then((battery: any) => {
+      if (battery && typeof battery.level === "number") {
+        cachedBattery = `${Math.round(battery.level * 100)}%`;
+      }
+      battery?.addEventListener?.("levelchange", () => {
+        cachedBattery = `${Math.round(battery.level * 100)}%`;
+      });
+    }).catch(() => {});
+  } catch {}
+}
+
+function drawTime(ctx: CanvasRenderingContext2D, now: Date = new Date()) {
+  const { timeStr, ampm, is24 } = getLiveTimeString(now);
+  const dateStr = getLiveDateString(now);
+
   ctx.fillStyle = DIM;
   ctx.font = "500 30px ui-sans-serif, system-ui, -apple-system, sans-serif";
   ctx.textAlign = "left";
-  ctx.fillText("TUE 30 SEP", 44, 96);
+  ctx.fillText(dateStr, 44, 96);
+
+  if (!is24 && ampm) {
+    const pillW = 52;
+    const pillH = 30;
+    const pillX = W / 2 - pillW / 2;
+    const pillY = 72;
+    ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+    roundRect(ctx, pillX, pillY, pillW, pillH, 8);
+    ctx.fill();
+
+    ctx.fillStyle = "rgba(245, 245, 244, 0.75)";
+    ctx.font = "600 18px ui-sans-serif, system-ui, -apple-system, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(ampm, W / 2, 93);
+  }
 
   ctx.fillStyle = "#7de08a";
   ctx.textAlign = "right";
-  ctx.fillText("98%", W - 44, 96);
+  ctx.font = "500 30px ui-sans-serif, system-ui, -apple-system, sans-serif";
+  ctx.fillText(cachedBattery, W - 44, 96);
 
   ctx.fillStyle = FG;
   ctx.textAlign = "center";
   ctx.font = "300 172px ui-sans-serif, system-ui, -apple-system, sans-serif";
-  ctx.fillText("10:09", W / 2, 336);
+  ctx.fillText(timeStr, W / 2, 336);
 
   ring(ctx, 128, 470, 52, 15, 0.82, "#ff4d5e");
   ring(ctx, 256, 470, 52, 15, 0.64, "#a8ff3e");
@@ -290,9 +364,10 @@ function drawEcg(ctx: CanvasRenderingContext2D) {
   ctx.fillText("● SINUS RHYTHM · NO SIGNS OF AFIB", W / 2, 549);
 }
 
-function drawNight(ctx: CanvasRenderingContext2D) {
+function drawNight(ctx: CanvasRenderingContext2D, now: Date = new Date()) {
   const RED = "#ff263c";
   const RED_DIM = "rgba(255,38,60,0.45)";
+  const { timeStr } = getLiveTimeString(now, true);
 
   ctx.fillStyle = RED_DIM;
   ctx.font = "600 24px ui-sans-serif, system-ui, -apple-system, sans-serif";
@@ -301,7 +376,7 @@ function drawNight(ctx: CanvasRenderingContext2D) {
 
   ctx.fillStyle = RED;
   ctx.font = "300 156px ui-sans-serif, system-ui, -apple-system, sans-serif";
-  ctx.fillText("02:44", W / 2, 236);
+  ctx.fillText(timeStr, W / 2, 236);
 
   ctx.fillStyle = RED_DIM;
   ctx.font = "500 24px ui-sans-serif, system-ui, -apple-system, sans-serif";
@@ -422,7 +497,11 @@ function drawCompass(ctx: CanvasRenderingContext2D) {
  * Draws one face state. The panel geometry is a plain rectangle, so the rounded
  * corners are painted here — the case sits over the edge and hides the seam.
  */
-export function drawFace(canvas: HTMLCanvasElement, mode: FaceMode) {
+export function drawFace(
+  canvas: HTMLCanvasElement,
+  mode: FaceMode,
+  now: Date = new Date(),
+) {
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) return;
 
@@ -442,22 +521,22 @@ export function drawFace(canvas: HTMLCanvasElement, mode: FaceMode) {
   ctx.fillStyle = sheen;
   ctx.fillRect(0, 0, W, H);
 
-  if (mode === "time") drawTime(ctx);
+  if (mode === "time") drawTime(ctx, now);
   else if (mode === "activity") drawActivity(ctx);
   else if (mode === "workout") drawWorkout(ctx);
   else if (mode === "dive") drawDive(ctx);
   else if (mode === "ecg") drawEcg(ctx);
-  else if (mode === "night") drawNight(ctx);
+  else if (mode === "night") drawNight(ctx, now);
   else if (mode === "compass") drawCompass(ctx);
 
   ctx.restore();
 }
 
-export function createFaceTexture(mode: FaceMode = "time") {
+export function createFaceTexture(mode: FaceMode = "time", now: Date = new Date()) {
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
-  drawFace(canvas, mode);
+  drawFace(canvas, mode, now);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
